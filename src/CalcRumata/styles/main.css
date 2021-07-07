@@ -1,0 +1,7 @@
+.bth:hover {
+    -fx-background-color: #dbdbdb!important;
+}
+
+.btn:armed {
+    -fx-background-color: #bbbbbb!important;
+}
