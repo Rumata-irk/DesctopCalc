@@ -3,9 +3,11 @@ package CalcRumata;
 
 import java.net.URL;
 import java.text.DecimalFormat;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javafx.animation.PauseTransition;
 
@@ -125,6 +127,7 @@ public class Controller {
     Pattern patternPoint = Pattern.compile("[^\\d()]$");
     Pattern patternPoint2 = Pattern.compile(",\\d+[^\\d()]$");
     Pattern patternEqually = Pattern.compile("\\u0000$");
+    Pattern patternLeftBracket = Pattern.compile("\\d$");
 
     DecimalFormat decimalFormat = new DecimalFormat("#.########");
 
@@ -389,6 +392,12 @@ public class Controller {
             if (this.str_num.length() > 1) {
                 this.str_num = this.str_num.substring(0, this.str_num.length() - 1);
                 main_text.setText(this.str_num);
+                String tempStr = this.str_num;
+                if (tempStr.substring(tempStr.length() - 1).matches("[+-/*]")) {
+                    expression(tempStr.substring(0, tempStr.length() - 1));
+                } else {
+                    expression(this.str_num);
+                }
             } else {
                 main_text.setText("");
             }
@@ -464,8 +473,27 @@ public class Controller {
                 }
             }
         });
+        //--bracket button--//
+        btn_bracket_left.setOnAction(event -> {
+            Matcher matcherBracket = patternLeftBracket.matcher(this.str_num);
+            if (matcherBracket.find()) {
+                this.str_num += "*(";
+                main_text.setText(this.str_num);
+            } else {
+                this.str_num += "(";
+                main_text.setText(this.str_num);
+            }
+        });
 
-
+        btn_bracket_right.setOnAction(event -> {
+            if (!checkBracket(this.str_num)) {
+                this.str_num += ")";
+                main_text.setText(this.str_num);
+            } else {
+                this.str_num = "(" + this.str_num + ")";
+                main_text.setText(this.str_num);
+            }
+        });
     }
 
     void addNumber(String number) {
@@ -480,13 +508,6 @@ public class Controller {
         }
     }
 
-    void expression(String strFunc) {
-        strFunc = strFunc.replaceAll(",", "\\.");
-        expression = new ExpressionBuilder(strFunc).build();
-        this.str_sum = decimalFormat.format(expression.evaluate());
-        summ_text.setText(this.str_sum);
-    }
-
     void checkEqually(String strEqual) {
         Matcher matcherEqually = patternEqually.matcher(strEqual);
         if (matcherEqually.find()) {
@@ -496,6 +517,48 @@ public class Controller {
             this.str_num = strEqual.replace("\u0000", "");
             main_text.setText(this.str_num);
         }
+    }
+
+    void expression(String strFunc) {
+        strFunc = strFunc.replaceAll(",", "\\.");
+        if (checkBracket(strFunc)) {
+            expression = new ExpressionBuilder(strFunc).build();
+        } else {
+            expression = new ExpressionBuilder(deleteBracket(strFunc)).build();
+        }
+
+        this.str_sum = decimalFormat.format(expression.evaluate());
+        summ_text.setText(this.str_sum);
+    }
+
+    static boolean checkBracket(String string) {
+        List<Character> listChar = string.chars().mapToObj(character -> (char) character).collect(Collectors.toList());
+        for (int i = 0; i < listChar.size(); i++) {
+            if (listChar.get(i).toString().contains("(")) {
+                for (int j = i; j < listChar.size(); j++) {
+                    if (listChar.get(j).toString().contains(")")) {
+                        listChar.remove(listChar.get(j));
+                        listChar.remove(listChar.get(i));
+                    }
+                }
+            }
+        }
+        String s = listChar.toString();
+        return !s.contains("(");
+    }
+
+    static String deleteBracket(String string) {
+        List<Character> listChar = string.chars().mapToObj(character -> (char) character).collect(Collectors.toList());
+        for (int i = 0; i < listChar.size(); i++) {
+            if (listChar.get(i).toString().contains("(")) {
+                listChar.remove(listChar.get(i));
+            }
+        }
+        string = "";
+        for (Character s : listChar) {
+            string += s;
+        }
+        return string;
     }
 }
 
