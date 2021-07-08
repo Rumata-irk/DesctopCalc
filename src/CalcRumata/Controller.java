@@ -123,7 +123,7 @@ public class Controller {
     private static Expression expression;
 
     Pattern patternPoint = Pattern.compile("[^\\d()]$");
-    Pattern patternPoint2 = Pattern.compile("\\.\\d+[^\\d()]$");
+    Pattern patternPoint2 = Pattern.compile(",\\d+[^\\d()]$");
     Pattern patternEqually = Pattern.compile("\\u0000$");
 
     DecimalFormat decimalFormat = new DecimalFormat("#.########");
@@ -361,18 +361,18 @@ public class Controller {
             expression(this.str_num);
         });
         btn_point.setOnAction(event -> {
-            String[] strings = this.str_num.split("(?!\\.)[+-/*]");
+            String[] strings = this.str_num.split("(?!,)[+-/*]");
             Matcher matcher = patternPoint.matcher(this.str_num);
             Matcher matcher2 = patternPoint2.matcher(this.str_num);
 
-            if (strings[strings.length - 1].contains(".") && !matcher2.find()) {
+            if (strings[strings.length - 1].contains(",") && !matcher2.find()) {
                 return;
             } else {
                 if (this.str_num.equals("") || matcher.find()) {
-                    this.str_num += "0.";
+                    this.str_num += "0,";
                     main_text.setText(this.str_num);
                 } else {
-                    this.str_num += ".";
+                    this.str_num += ",";
                     main_text.setText(this.str_num);
                 }
             }
@@ -424,7 +424,7 @@ public class Controller {
             }
         });
         btn_memory_plus.setOnAction(event -> {
-            String memoryTemp = this.str_num;
+            String memoryTemp = this.str_sum;
             memoryTemp = memoryTemp.replaceAll(",", "\\.");
             if (Double.parseDouble(memoryTemp) != 0) {
                 this.memory = this.memory + Double.parseDouble(memoryTemp);
@@ -438,7 +438,7 @@ public class Controller {
             }
         });
         btn_memory_minus.setOnAction(event -> {
-            String memoryTemp = this.str_num;
+            String memoryTemp = this.str_sum;
             memoryTemp = memoryTemp.replaceAll(",", "\\.");
             if (Double.parseDouble(memoryTemp) != 0) {
                 this.memory = this.memory - Double.parseDouble(memoryTemp);
@@ -458,9 +458,11 @@ public class Controller {
                     main_text.setText(this.str_num);
                 } else {
                     this.str_num = this.memory.toString();
-                    main_text.setText(this.str_num);
+                    String memoryTemp = this.str_num;
+                    memoryTemp = memoryTemp.replaceAll("\\.", ",");
+                    main_text.setText(memoryTemp);
                 }
-            } else return;
+            }
         });
 
 
