@@ -421,27 +421,35 @@ public class Controller {
             if (this.memory != 0) {
                 this.memory = 0.0;
                 memory_text.setText("");
-            } else return;
+            }
         });
         btn_memory_plus.setOnAction(event -> {
-            if (Integer.parseInt(this.str_num) != 0) {
-                this.memory = this.memory + Double.parseDouble(this.str_num);
+            String memoryTemp = this.str_num;
+            memoryTemp = memoryTemp.replaceAll(",", "\\.");
+            if (Double.parseDouble(memoryTemp) != 0) {
+                this.memory = this.memory + Double.parseDouble(memoryTemp);
                 if (this.memory % 1 == 0) {
                     memory_text.setText(String.format("%.0f", this.memory));
                 } else {
-                    memory_text.setText(String.valueOf(this.memory));
+                    String memoryTemp2 = String.valueOf(this.memory);
+                    memoryTemp2 = memoryTemp2.replaceAll("\\.", ",");
+                    memory_text.setText(memoryTemp2);
                 }
-            } else return;
+            }
         });
         btn_memory_minus.setOnAction(event -> {
-            if (Integer.parseInt(this.str_num) != 0) {
-                this.memory = this.memory - Double.parseDouble(this.str_num);
+            String memoryTemp = this.str_num;
+            memoryTemp = memoryTemp.replaceAll(",", "\\.");
+            if (Double.parseDouble(memoryTemp) != 0) {
+                this.memory = this.memory - Double.parseDouble(memoryTemp);
                 if (this.memory % 1 == 0) {
                     memory_text.setText(String.format("%.0f", this.memory));
                 } else {
-                    memory_text.setText(String.valueOf(this.memory));
+                    String memoryTemp2 = String.valueOf(this.memory);
+                    memoryTemp2 = memoryTemp2.replaceAll("\\.", ",");
+                    memory_text.setText(memoryTemp2);
                 }
-            } else return;
+            }
         });
         btn_memory_return.setOnAction(event -> {
             if (this.memory != 0) {
@@ -472,7 +480,6 @@ public class Controller {
 
     void expression(String strFunc) {
         strFunc = strFunc.replaceAll(",", "\\.");
-        System.out.println(strFunc);
         expression = new ExpressionBuilder(strFunc).build();
         this.str_sum = decimalFormat.format(expression.evaluate());
         summ_text.setText(this.str_sum);
