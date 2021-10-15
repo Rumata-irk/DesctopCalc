@@ -13,6 +13,7 @@ import javafx.animation.PauseTransition;
 
 import javafx.fxml.FXML;
 
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
@@ -121,6 +122,7 @@ public class Controller {
     private String str_num = "";
     private Double memory = 0.0;
     private String str_sum = "";
+    private Double percent = 0.0;
 
     private static Expression expression;
 
@@ -128,6 +130,8 @@ public class Controller {
     Pattern patternPoint2 = Pattern.compile(",\\d+[^\\d()]$");
     Pattern patternEqually = Pattern.compile("\\u0000$");
     Pattern patternLeftBracket = Pattern.compile("\\d$");
+    Pattern patternPercent = Pattern.compile("\\s+");
+    Pattern patternPercent2 = Pattern.compile("\\d$");
 
     DecimalFormat decimalFormat = new DecimalFormat("#.########");
 
@@ -313,7 +317,7 @@ public class Controller {
             checkEqually(this.str_num);
             addNumber("0");
             try {
-                expression(this.str_num);
+                checkPercent(this.str_num);
             } catch (Exception e) {
                 summ_text.setText("Error");
             }
@@ -321,47 +325,47 @@ public class Controller {
         btn_1.setOnAction(event -> {
             checkEqually(this.str_num);
             addNumber("1");
-            expression(this.str_num);
+            checkPercent(this.str_num);
         });
         btn_2.setOnAction(event -> {
             checkEqually(this.str_num);
             addNumber("2");
-            expression(this.str_num);
+            checkPercent(this.str_num);
         });
         btn_3.setOnAction(event -> {
             checkEqually(this.str_num);
             addNumber("3");
-            expression(this.str_num);
+            checkPercent(this.str_num);
         });
         btn_4.setOnAction(event -> {
             checkEqually(this.str_num);
             addNumber("4");
-            expression(this.str_num);
+            checkPercent(this.str_num);
         });
         btn_5.setOnAction(event -> {
             checkEqually(this.str_num);
             addNumber("5");
-            expression(this.str_num);
+            checkPercent(this.str_num);
         });
         btn_6.setOnAction(event -> {
             checkEqually(this.str_num);
             addNumber("6");
-            expression(this.str_num);
+            checkPercent(this.str_num);
         });
         btn_7.setOnAction(event -> {
             checkEqually(this.str_num);
             addNumber("7");
-            expression(this.str_num);
+            checkPercent(this.str_num);
         });
         btn_8.setOnAction(event -> {
             checkEqually(this.str_num);
             addNumber("8");
-            expression(this.str_num);
+            checkPercent(this.str_num);
         });
         btn_9.setOnAction(event -> {
             checkEqually(this.str_num);
             addNumber("9");
-            expression(this.str_num);
+            checkPercent(this.str_num);
         });
         btn_point.setOnAction(event -> {
             String[] strings = this.str_num.split("(?!,)[+-/*]");
@@ -394,9 +398,9 @@ public class Controller {
                 main_text.setText(this.str_num);
                 String tempStr = this.str_num;
                 if (tempStr.substring(tempStr.length() - 1).matches("[+-/*]")) {
-                    expression(tempStr.substring(0, tempStr.length() - 1));
+                    checkPercent(tempStr.substring(0, tempStr.length() - 1));
                 } else {
-                    expression(this.str_num);
+                    checkPercent(this.str_num);
                 }
             } else {
                 main_text.setText("");
@@ -420,9 +424,20 @@ public class Controller {
         });
         btn_equally.setOnAction(event -> {
             checkCharacter(this.str_num);
-            expression(this.str_num);
+            checkPercent(this.str_num);
             this.str_num = this.str_sum + "\u0000";
             main_text.setText(this.str_num);
+        });
+        btn_percent.setOnAction(event -> {
+            System.out.println("1");
+            if (!this.str_num.contains("%")) {
+                System.out.println("2");
+                this.str_num = this.str_num + "%";
+                main_text.setText(this.str_num);
+                rschetPercent(this.str_num);
+
+            }
+
         });
 
         //--memory button--//
@@ -519,6 +534,17 @@ public class Controller {
         }
     }
 
+    void checkPercent(String checkPercent) {
+        if (!checkPercent.contains("%")) {
+            expression(this.str_num);
+        } else {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setContentText("Error");
+            alert.showAndWait();
+        }
+    }
+
     void expression(String strFunc) {
         strFunc = strFunc.replaceAll(",", "\\.");
         if (checkBracket(strFunc)) {
@@ -559,6 +585,30 @@ public class Controller {
             string += s;
         }
         return string;
+    }
+
+    void rschetPercent(String str) {
+        String[] stringsNumber = str.split("\\d+%");
+        String znak = stringsNumber[0].substring(stringsNumber[0].length() - 1);
+        String stringRaschet = stringsNumber[0].substring(0, stringsNumber[0].length() - 1);
+        String[] stringsNumberLast = str.split("[/*+-]");
+        String lastNum = stringsNumberLast[stringsNumberLast.length - 1].substring(0, stringsNumberLast[stringsNumberLast.length - 1].length() - 1);
+
+        Expression expressionFirst = new ExpressionBuilder(stringRaschet).build();
+        this.percent = expressionFirst.evaluate() * Double.parseDouble(lastNum) / 100;
+
+        String strLast = expressionFirst.evaluate() + znak + this.percent;
+        Expression expressionSecond = new ExpressionBuilder(strLast).build();
+        this.str_sum = String.valueOf(expressionSecond.evaluate());
+        if (expressionSecond.evaluate() % 1 == 0) {
+            this.str_sum = String.format("%.0f", expressionSecond.evaluate());
+            summ_text.setText(this.str_sum);
+        } else {
+            String sumTemp = this.str_sum;
+            sumTemp = sumTemp.replaceAll("\\.", ",");
+            summ_text.setText(sumTemp + " [" + percent + "]");
+
+        }
     }
 }
 
